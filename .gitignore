@@ -16,3 +16,10 @@ venv/
 # Local model files
 *.safetensors
 *.bin
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
