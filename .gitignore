@@ -1,2 +1,18 @@
+# macOS
 .DS_Store
+
+# Local LLM model - DO NOT PUSH
 LLM_Project/Mistral7B/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+
+# Local model files
+*.safetensors
+*.bin
