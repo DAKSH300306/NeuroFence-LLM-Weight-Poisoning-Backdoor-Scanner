@@ -1,1 +1,13 @@
 .DS_Store
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
