@@ -8,10 +8,9 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-
 class NeuroFenceDashboard(QMainWindow):
     def __init__(self):
-        super().__i/Users/akshaya/test/coffee/NeuroFence-LLM-Weight-Poisoning-Backdoor-Scanner/README.mdnit__()
+        super().__init__()
 
         self.setWindowTitle("NeuroFence - LLM Security & Forensic Scanner")
         self.setMinimumSize(900, 600)
@@ -61,3 +60,4 @@ window = NeuroFenceDashboard()
 window.show()
 
 sys.exit(app.exec())
+
