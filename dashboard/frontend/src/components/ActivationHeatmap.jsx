@@ -1,5 +1,10 @@
-// Cell colour blends two theme colours, so the heatmap follows light and dark mode.
-const fill = (v) => `color-mix(in oklab, var(--heat-hi) ${Math.round(Math.min(1, Math.max(0, v)) * 100)}%, var(--heat-lo))`;
+// Cell colour runs navy, violet, cyan as the response gets stronger.
+const fill = (v) => {
+  const t = Math.min(1, Math.max(0, v));
+  return t < 0.5
+    ? `color-mix(in oklab, var(--violet) ${Math.round(t * 200)}%, var(--heat-lo))`
+    : `color-mix(in oklab, var(--heat-hi) ${Math.round((t - 0.5) * 200)}%, var(--violet))`;
+};
 
 export default function ActivationHeatmap({ activations, suspicious = [] }) {
   const W = 26, H = 40, L = 118, T = 34;
