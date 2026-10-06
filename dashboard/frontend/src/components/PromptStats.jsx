@@ -1,6 +1,6 @@
 export default function PromptStats({ prompts }) {
   if (!prompts) return null;
-  const parts = [["Normal", prompts.normal, "var(--ink)"], ["Unusual", prompts.unusual, "var(--warn)"], ["Trigger candidates", prompts.trigger_candidates, "var(--signal)"]];
+  const parts = [["Normal", prompts.normal, "var(--accent)"], ["Unusual", prompts.unusual, "var(--warn)"], ["Trigger candidates", prompts.trigger_candidates, "var(--signal)"]];
   return (
     <section className="panel">
       <div className="row between"><h2>Test prompts</h2><span className="num big">{prompts.total_prompts.toLocaleString()}</span></div>

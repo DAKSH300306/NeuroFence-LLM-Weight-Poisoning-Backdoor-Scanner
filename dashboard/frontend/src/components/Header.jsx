@@ -1,9 +1,9 @@
-export default function Header({ model, config, state, onStart, onStop, onReset, onConfig }) {
+export default function Header({ model, config, when, state, onStart, onStop, onReset, onConfig }) {
   const running = state === "running", done = state === "done";
   return (
     <header className="head" id="scan">
       <div>
-        <p className="muted">Model under inspection · {config?.mode === "live" ? "live pipeline" : "demo data"}</p>
+        <p className="muted">Model under inspection · {config?.mode === "live" ? "live pipeline" : "demo data"}{when ? ` · scanned ${when}` : ""}</p>
         <h1>{model ? model.name : "Loading…"}</h1>
         {model && <p className="muted">{model.format} · {model.size} · {model.source}</p>}
         <div className="modelpick">

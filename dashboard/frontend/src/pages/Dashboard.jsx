@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   return (
     <main className="main">
-      <Header model={model} config={config} onConfig={changeConfig} state={scan.state} onStart={act("/api/scan/start")} onStop={act("/api/scan/stop")} onReset={act("/api/scan/reset")} />
+      <Header model={model} config={config} when={r?.timestamp} onConfig={changeConfig} state={scan.state} onStart={act("/api/scan/start")} onStop={act("/api/scan/stop")} onReset={act("/api/scan/reset")} />
       {(error || scan.error) && <div className="alert" role="alert">{error || scan.error}</div>}
       <ScanProgress {...scan} />
       <div className="grid top">
@@ -56,13 +56,11 @@ export default function Dashboard() {
           <ThreatRadar breakdown={r?.detection.breakdown} />
         </div>
       </div>
-      <div className="grid bottom">
-        <Findings detection={r?.detection} />
-        <div className="stackcol">
-          <ModelDNA model={r?.model || model} />
-          <PromptStats prompts={r?.prompts || prompts} />
-        </div>
-      </div>
+      <Findings detection={r?.detection} />
+      <section id="model" className="grid pair">
+        <ModelDNA model={r?.model || model} />
+        <PromptStats prompts={r?.prompts || prompts} />
+      </section>
     </main>
   );
 }

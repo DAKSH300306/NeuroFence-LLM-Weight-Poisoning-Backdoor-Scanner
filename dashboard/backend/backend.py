@@ -39,7 +39,10 @@ def mock(name): return json.loads((DATA / name).read_text(encoding="utf-8"))
 
 # ---- model (Member 1) --------------------------------------------------------
 def resolve_model(m):
-    for base in (Path.cwd(), ROOT):
+    bases = [ROOT]
+    try: bases.insert(0, Path.cwd())          # cwd can vanish if the folder was replaced while the server ran
+    except OSError: pass
+    for base in bases:
         p = base / m
         if p.exists(): return str(p.resolve())
     return m
@@ -203,6 +206,24 @@ def worker(evt, demo):
         pass
     except Exception as e:
         if not evt.is_set(): S.update(state="error", error=str(e)); log("Scan failed")
+
+def load_last_scan():
+    """Show the results of the previous scan on startup instead of an empty dashboard."""
+    if not (live_mode() and RESULTS.exists() and ACT_DATA.exists()): return
+    try:
+        a, d = build_real_result(); info = get_model()
+        try:
+            meta = json.loads((PIPE / "activation" / "activation_meta.json").read_text(encoding="utf-8"))["model"]
+            info["name"] = os.path.basename(meta.rstrip("/"))
+            if not os.getenv("NEUROFENCE_MODEL"): CONFIG["model"] = meta
+        except Exception: pass
+        ts = datetime.fromtimestamp(RESULTS.stat().st_mtime)
+        S.update(state="done", progress=100, data={"model": info, "prompts": get_prompts(), "activations": a, "detection": d,
+                 "timestamp": f"{ts:%d %b %Y %H:%M:%S}", "mode": "live"}); log("Loaded results from the last scan")
+    except Exception:
+        pass
+
+load_last_scan()
 
 # ---- app ---------------------------------------------------------------------
 app = FastAPI(title="NeuroFence API")
