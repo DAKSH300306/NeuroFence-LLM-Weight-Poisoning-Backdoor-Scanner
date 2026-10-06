@@ -101,3 +101,8 @@ td { padding: 10px; border-bottom: 1px solid var(--line); }
   .main { padding: 20px 16px 40px; } h1 { font-size: 32px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.modelpick { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; font-size: 13px; color: var(--ink2); }
+.modelpick label { display: flex; flex-direction: column; gap: 4px; }
+.modelpick input[type="text"], .modelpick input:not([type]) { font: 500 14px var(--body); padding: 8px 12px; min-width: 260px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); }
+.modelpick .chk { flex-direction: row; align-items: center; gap: 6px; padding-bottom: 9px; }

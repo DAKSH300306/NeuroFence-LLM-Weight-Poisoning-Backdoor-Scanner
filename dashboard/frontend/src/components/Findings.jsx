@@ -36,7 +36,9 @@ export default function Findings({ detection }) {
           </tbody>
         </table>
       </div>
-      <p className="muted">Do not deploy until the trigger is reviewed. Re-run the trigger prompts with layer {t.layer} ablated and compare weights against a trusted checkpoint.</p>
+      {t.confidence >= 50
+        ? <p className="muted">Do not deploy until the trigger is reviewed. Re-run the trigger prompts with layer {t.layer} ablated and compare weights against a trusted checkpoint.</p>
+        : <p className="muted">No strong trigger signal in this run. Try a larger prompt sample before treating the model as clean.</p>}
     </section>
   );
 }
