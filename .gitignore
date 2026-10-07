@@ -23,3 +23,14 @@ venv/
 
 # OS files
 Thumbs.db
+venv/
+node_modules/
+dist/
+__pycache__/
+dashboard_old/
+*.zip
+neurofence_member3_4/activation/activation_data.json
+neurofence_member3_4/activation/activation_meta.json
+neurofence_member3_4/detection/baseline.json
+neurofence_member3_4/detection/preliminary_results.json
+.DS_Store
