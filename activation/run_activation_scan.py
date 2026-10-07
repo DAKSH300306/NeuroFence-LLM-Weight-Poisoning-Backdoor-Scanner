@@ -102,6 +102,8 @@ def main():
     ap.add_argument("--prompts", default=None, help="path to generated_prompts.json (auto-detected)")
     ap.add_argument("--model", default="distilgpt2", help="HF model name or local folder")
     ap.add_argument("--local-only", action="store_true", help="offline mode (no internet)")
+    ap.add_argument("--dtype", default=None, choices=["float16", "bfloat16"], help="load weights in half precision")
+    ap.add_argument("--device-map-auto", action="store_true", help="device_map='auto' (needs accelerate) for big models")
     ap.add_argument("--output", default=str(ROOT / "activation" / "activation_data.json"))
     ap.add_argument("--num-layers", type=int, default=4, help="how many blocks to monitor")
     ap.add_argument("--max-values", type=int, default=768, help="max activation values stored per layer")
@@ -119,7 +121,7 @@ def main():
     print(f"      {len(records)} prompts selected: {dict(types)}")
 
     print(f"[2/4] Loading model: {args.model} (offline={args.local_only})")
-    model, tokenizer = load_model(args.model, args.local_only)
+    model, tokenizer = load_model(args.model, args.local_only, args.dtype, "auto" if args.device_map_auto else None)
 
     tracker = ActivationTracker(model, num_layers=args.num_layers, max_values=args.max_values)
     print(f"[3/4] Hooks registered on: {tracker.layer_map}")

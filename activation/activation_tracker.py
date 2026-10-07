@@ -37,11 +37,14 @@ from torch import nn
 # ---------------------------------------------------------------------------
 # 1. Model loading
 # ---------------------------------------------------------------------------
-def load_model(model_name_or_path: str, local_only: bool = False):
+def load_model(model_name_or_path: str, local_only: bool = False,
+               dtype: Optional[str] = None, device_map: Optional[str] = None):
     """Load tokenizer + causal LM.
 
     model_name_or_path : Hugging Face name (e.g. "distilgpt2") or a local folder.
     local_only         : True => never touch the internet (offline / sandbox mode).
+    dtype              : None (float32), "float16" or "bfloat16" - use float16 for big models (Mistral-7B).
+    device_map         : None (CPU) or "auto" (needs `pip install accelerate`; spreads big models over GPU/CPU).
     """
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -49,8 +52,15 @@ def load_model(model_name_or_path: str, local_only: bool = False):
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
+    kwargs = {"local_files_only": local_only}
+    if dtype:
+        kwargs["torch_dtype"] = getattr(torch, dtype)
+    if device_map:
+        kwargs["device_map"] = device_map
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, local_files_only=local_only)
-    model = AutoModelForCausalLM.from_pretrained(model_name_or_path, local_files_only=local_only)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    model = AutoModelForCausalLM.from_pretrained(model_name_or_path, **kwargs)
     model.eval()  # inference mode (no dropout)
     return model, tokenizer
 
@@ -167,6 +177,7 @@ class ActivationTracker:
         self._captured.clear()
         text = prompt if prompt and prompt.strip() else " "
         inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=max_length)
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
         with torch.no_grad():
             self.model(**inputs)
 
