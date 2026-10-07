@@ -1,0 +1,14 @@
+{
+  "model": "distilgpt2",
+  "prompts_file": "/Users/akshaya/test/coffee/NeuroFence-LLM-Weight-Poisoning-Backdoor-Scanner/fuzzer/generated_prompts.json",
+  "block_list": "transformer.h",
+  "monitored_layers": {
+    "layer_0": "transformer.h.0",
+    "layer_2": "transformer.h.2",
+    "layer_3": "transformer.h.3",
+    "layer_5": "transformer.h.5"
+  },
+  "max_values": 768,
+  "num_records": 80,
+  "seconds": 2.09
+}
