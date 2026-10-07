@@ -134,3 +134,50 @@ tbody tr:hover td { background: rgba(34,211,238,.05); }
   .main { padding: 20px 16px 40px; } h1 { font-size: 30px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+
+/* ---- multi-page layout, reference-style cards and charts ---- */
+:root { --line: #232c55; }
+.panel { border-radius: 16px; border-color: rgba(99,102,241,.28); background: linear-gradient(180deg, rgba(16,22,52,.78), rgba(9,13,34,.82)); }
+.panel::before { display: none; }
+.rail nav h3, .rail-foot h3 { font: 600 10.5px var(--body); letter-spacing: .16em; color: #6674a3; margin: 18px 12px 6px; text-transform: uppercase; }
+.rail-foot h3 { margin: 0 0 6px; }
+.rail nav { overflow-y: auto; }
+.rail nav a { display: flex; align-items: center; gap: 10px; }
+.dot.amber { background: var(--warn); animation: none; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.kpi { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border-radius: 16px; border: 1px solid rgba(99,102,241,.28); background: linear-gradient(180deg, rgba(16,22,52,.78), rgba(9,13,34,.82)); animation: rise .5s ease both; min-width: 0; }
+.kpi .badge { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #4a5bf0, #151c4d); box-shadow: 0 0 0 1px rgba(108,123,255,.45); }
+.kpi.crit .badge { background: radial-gradient(circle at 35% 30%, #ff5d6c, #4a0f1c); box-shadow: 0 0 0 1px rgba(255,77,94,.5); }
+.kpi.warn .badge { background: radial-gradient(circle at 35% 30%, #fbbf4a, #4a2c08); box-shadow: 0 0 0 1px rgba(251,146,60,.5); }
+.kpi.ok .badge { background: radial-gradient(circle at 35% 30%, #34d399, #06382b); box-shadow: 0 0 0 1px rgba(52,211,153,.5); }
+.kpi b { display: block; font-size: 26px; line-height: 1.1; }
+.kpi small { color: var(--ink2); text-transform: capitalize; }
+.kpi em { display: block; font-style: normal; font-size: 12px; color: var(--ink2); }
+.grid.tri { grid-template-columns: minmax(240px, .8fr) minmax(0, 1.8fr) minmax(240px, .9fr); }
+.bars { display: flex; gap: 14px; align-items: stretch; height: 170px; }
+.barcol { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.barcol span { font-size: 12px; color: var(--ink2); }
+.barcol small { font-size: 11px; color: var(--ink2); margin-top: 6px; text-align: center; }
+.track { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.track i { width: 14px; border-radius: 8px 8px 0 0; background: linear-gradient(180deg, #6c7bff, rgba(108,123,255,.12)); transition: height .6s; }
+.track i.hot { background: linear-gradient(180deg, var(--signal), rgba(255,77,94,.12)); }
+.trend { width: 100%; display: block; }
+.ln { fill: none; stroke-width: 2; stroke-linejoin: round; }
+.ln.n { stroke: #6c7bff; } .ln.t { stroke: var(--signal); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; } .sw.n { background: #6c7bff; } .sw.t { background: var(--signal); }
+.donutwrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.donut { width: 150px; flex: none; }
+.donutwrap .legend { flex: 1; min-width: 140px; }
+.filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.filters input, .filters select { font: 500 14px var(--body); padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(120,160,255,.25); background: rgba(5,9,20,.7); color: var(--ink); min-width: 220px; }
+.ptext { max-width: 520px; overflow-wrap: anywhere; }
+.pill:not(.ok):not(.warn):not(.crit) { background: rgba(120,160,255,.1); color: var(--ink2); border-color: rgba(120,160,255,.2); }
+.report h3 { font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); margin: 22px 0 6px; }
+.report { max-width: 900px; }
+@media (max-width: 1200px) { .grid.tri { grid-template-columns: 1fr; } .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media print {
+  .rail, .actions, .progress, .noprint, .alert { display: none !important; }
+  body { background: #fff; color: #000; } .shell { display: block; }
+  .panel { background: #fff; color: #000; border: 1px solid #bbb; backdrop-filter: none; animation: none; }
+  .muted, h2, h3, th, .kv dt { color: #333; }
+}

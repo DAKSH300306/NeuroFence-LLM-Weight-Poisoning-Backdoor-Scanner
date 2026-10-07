@@ -15,6 +15,7 @@ export default function ModelDNA({ model }) {
         <dt>SHA-256</dt><dd className="hash">{model.hash}</dd>
         <dt>Format</dt><dd>{model.format}</dd>
         <dt>Source</dt><dd>{model.source}, runs {model.execution.toLowerCase()}</dd>
+        <dt>Size</dt><dd>{model.size}</dd>
         <dt>Integrity</dt><dd>{model.status}</dd>
       </dl>
     </section>
