@@ -1,3 +1,6 @@
 torch
 transformers
 numpy
+matplotlib
+# optional, only for big models like Mistral-7B with --device-map-auto:
+# accelerate
