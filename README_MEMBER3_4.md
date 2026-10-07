@@ -1,19 +1,18 @@
 # NeuroFence -  (Activation Tracker) (Detection & Analysis)
 
-MID-SEM foundation. Defensive research only. Results are **potential activation anomalies**,
-not confirmed backdoors.
+Defensive research only. Results are **potential activation anomalies**. 
 
 ## Folder layout (copy into repo root; no teammate file is overwritten)
 ```
 activation/
     __init__.py
-    activation_tracker.py     # hooks + stats (Member 3)
+    activation_tracker.py     # hooks + stats 
     inspect_model.py          # prints real layer names of your model
     run_activation_scan.py    # prompts -> activation_data.json
     sample_prompts.json       # fallback demo prompts
 detection/
     __init__.py
-    baseline.py               # normal records -> baseline.json (Member 4)
+    baseline.py               # normal records -> baseline.json 
     preliminary_detector.py   # Z-score -> preliminary_results.json
 requirements_member3_4.txt
 ```
