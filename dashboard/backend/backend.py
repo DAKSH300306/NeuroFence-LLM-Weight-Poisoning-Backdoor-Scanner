@@ -26,9 +26,11 @@ PIPE = ROOT / "neurofence_member3_4"
 ACT_PY, BASE_PY, DET_PY = (PIPE / "activation" / "run_activation_scan.py",
                            PIPE / "detection" / "baseline.py", PIPE / "detection" / "preliminary_detector.py")
 ACT_DATA, RESULTS = PIPE / "activation" / "activation_data.json", PIPE / "detection" / "preliminary_results.json"
+BASELINE, ACT_META = PIPE / "detection" / "baseline.json", PIPE / "activation" / "activation_meta.json"
 
 CONFIG = {"model": os.getenv("NEUROFENCE_MODEL", "distilgpt2"),
-          "local_only": os.getenv("NEUROFENCE_LOCAL_ONLY") == "1"}
+          "local_only": os.getenv("NEUROFENCE_LOCAL_ONLY") == "1",
+          "max_per_type": int(os.getenv("NEUROFENCE_MAX_PER_TYPE", "20"))}
 MAX_PER_TYPE = os.getenv("NEUROFENCE_MAX_PER_TYPE", "20")
 
 def live_mode():
@@ -131,7 +133,7 @@ def build_real_result():
                "status": "SUSPICIOUS BEHAVIOR" if conf >= 50 else "WEAK SIGNAL" if conf else "NO SIGNAL",
                "deviation": f"{max((r['max_z'] for r in trig), default=0):.1f}σ",
                "investigation": "REQUIRES REVIEW" if conf >= 50 else "LOW PRIORITY"}
-    detection = {"anomalies": len(flagged(test)), "risk_score": risk, "severity": sev,
+    detection = {"tested": len(recs), "anomalies": len(flagged(test)), "risk_score": risk, "severity": sev,
                  "suspicious_layers": sorted(lnum(d["layer"]) for d in ranked), "breakdown": breakdown,
                  "table": table, "trigger": trigger, "disclaimer": res.get("disclaimer", "")}
     return activations, detection
@@ -174,7 +176,7 @@ def live_pipeline():
         m = re.match(r"\s+\[(\d+)/(\d+)\]", line)
         if m: S["progress"] = BOUNDS[3] + (BOUNDS[4] - BOUNDS[3]) * int(m[1]) // int(m[2])
         elif re.match(r"\[\d/4\]", line): log(line)
-    run([ACT_PY, "--prompts", FUZZ, "--model", resolve_model(CONFIG["model"]), "--max-per-type", MAX_PER_TYPE]
+    run([ACT_PY, "--prompts", FUZZ, "--model", resolve_model(CONFIG["model"]), "--max-per-type", CONFIG["max_per_type"]]
         + (["--local-only"] if CONFIG["local_only"] else []), PIPE, on_act)
     begin(4, "Building the normal-prompt baseline"); run([BASE_PY], PIPE)
     log("Scoring every prompt against the baseline"); run([DET_PY], PIPE)
@@ -232,6 +234,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 class Cfg(BaseModel):
     model: str | None = None
     local_only: bool | None = None
+    max_per_type: int | None = None
 
 @app.get("/api/config")
 def get_config(): return {**CONFIG, "mode": "live" if live_mode() else "demo"}
@@ -241,6 +244,7 @@ def set_config(c: Cfg):
     if S["state"] == "running": raise HTTPException(409, "Stop the scan before changing the model")
     if c.model is not None and c.model.strip(): CONFIG["model"] = c.model.strip()
     if c.local_only is not None: CONFIG["local_only"] = c.local_only
+    if c.max_per_type: CONFIG["max_per_type"] = max(1, min(200, c.max_per_type))
     return get_config()
 
 @app.get("/api/model")
@@ -279,6 +283,40 @@ def status():
 
 @app.get("/api/history")
 def history(): return HISTORY
+
+@app.get("/api/prompts/list")
+def prompt_list(type: str = "", q: str = "", limit: int = 150):
+    try: rows = json.loads(FUZZ.read_text(encoding="utf-8"))
+    except Exception: rows = []
+    scored = {}
+    try:
+        for r in json.loads(RESULTS.read_text(encoding="utf-8"))["records"]: scored[r["id"]] = r
+    except Exception: pass
+    out = []
+    for r in rows:
+        if type and r.get("type") != type: continue
+        if q and q.lower() not in r.get("prompt", "").lower(): continue
+        sc = scored.get(r.get("id"))
+        out.append({"id": r.get("id"), "type": r.get("type"), "prompt": r.get("prompt", ""), "tested": sc is not None,
+                    "flagged": bool(sc and sc["suspicious_layers"]), "score": sc["preliminary_score"] if sc else None})
+    out.sort(key=lambda x: (not x["tested"], not x["flagged"]))      # tested and flagged prompts first
+    return {"counts": dict(Counter(r.get("type") for r in rows)), "total": len(out), "rows": out[:limit]}
+
+_H = {}
+def file_hash(p):
+    st = p.stat(); k = (st.st_mtime, st.st_size)
+    if _H.get(p, (None,))[0] != k: _H[p] = (k, sha256_of([p]))
+    return _H[p][1]
+
+@app.get("/api/evidence")
+def evidence():
+    out = []
+    for p in (FUZZ, ACT_DATA, ACT_META, BASELINE, RESULTS):
+        if p.exists():
+            st = p.stat()
+            out.append({"name": p.name, "path": str(p.relative_to(ROOT)), "size": st.st_size,
+                        "modified": f"{datetime.fromtimestamp(st.st_mtime):%d %b %Y %H:%M}", "sha256": file_hash(p)})
+    return out
 
 @app.get("/api/export/{fmt}")
 def export(fmt: str):
